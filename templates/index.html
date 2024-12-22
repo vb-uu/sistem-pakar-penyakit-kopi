@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pakar Deteksi Penyakit Kopi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Sistem Pakar Deteksi Penyakit Kopi</h1>
+    <p>Jawablah pertanyaan berikut untuk mendeteksi penyakit pada tanaman kopi Anda.</p>
+
+    <div id="question-container">
+        <!-- Pertanyaan akan ditampilkan di sini -->
+    </div>
+    
+    <div id="answer-buttons" class="btn-container">
+        <button class="answer-btn" data-value="1">Ya</button>
+        <button class="answer-btn" data-value="0.7">Mungkin Iya</button>
+        <button class="answer-btn" data-value="0.4">Mungkin Tidak</button>
+        <button class="answer-btn" data-value="0">Tidak</button>
+    </div>
+
+    <button id="next-btn" onclick="nextQuestion()" style="display:none;">Lanjutkan</button>
+
+    <div id="result" style="display:none;">
+        <h2>Hasil Diagnosis:</h2>
+        <p id="diagnosis-result"></p>
+        <p id="solution-result"></p>
+        <p id="confidence-result"></p>
+    </div>
+
+    <script>
+        let currentQuestionIndex = 0;
+        let answers = {};
+        const questions = [
+            "1. Apakah daun tanaman kopi menunjukkan perubahan warna, seperti kuning, cokelat, atau kehitaman?",
+            "2. Apakah ada bercak pada daun kopi?",
+            "3. Apakah tanaman kopi menunjukkan tanda-tanda pembusukan pada akar?",
+            "4. Apakah ada serangan hama pada tanaman kopi?",
+            "5. Apakah terdapat bercak putih di daun?"
+            // Tambahkan pertanyaan lain di sini sesuai kebutuhan
+        ];
+
+        // Fungsi untuk menampilkan soal berikutnya
+        function displayQuestion() {
+            const questionContainer = document.getElementById('question-container');
+            questionContainer.innerHTML = questions[currentQuestionIndex];
+            document.getElementById('next-btn').style.display = 'none';  // Sembunyikan tombol 'Lanjutkan'
+        }
+
+        // Fungsi untuk menangani tombol jawaban
+        function selectAnswer(value) {
+            answers[currentQuestionIndex] = value;
+            document.getElementById('next-btn').style.display = 'inline-block';  // Tampilkan tombol 'Lanjutkan'
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(button => button.disabled = true);  // Disable semua tombol setelah jawaban dipilih
+        }
+
+        // Fungsi untuk melanjutkan ke soal berikutnya
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion();
+                const buttons = document.querySelectorAll('.answer-btn');
+                buttons.forEach(button => button.disabled = false);  // Enable tombol setelah soal baru muncul
+            } else {
+                submitAnswers();
+            }
+        }
+
+        // Fungsi untuk mengirim jawaban dan menampilkan hasil diagnosis
+        function submitAnswers() {
+            fetch('/diagnose', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(answers)
+            })
+            .then(response => response.json())
+            .then(result => {
+                document.getElementById('question-container').style.display = 'none';
+                document.getElementById('answer-buttons').style.display = 'none';
+                document.getElementById('next-btn').style.display = 'none';
+
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('diagnosis-result').innerText = `Penyakit: ${result.disease}`;
+                document.getElementById('solution-result').innerText = `Solusi: ${result.solution}`;
+                document.getElementById('confidence-result').innerText = `Kepercayaan: ${result.confidence}`;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Menampilkan soal pertama saat halaman dimuat
+        window.onload = displayQuestion;
+
+        // Menangani event klik pada tombol jawaban
+        const buttons = document.querySelectorAll('.answer-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.getAttribute('data-value');
+                selectAnswer(value);
+            });
+        });
+    </script>
+</body>
+</html>
