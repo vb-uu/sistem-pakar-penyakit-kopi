@@ -21,8 +21,6 @@
         <button class="answer-btn" data-value="0">Tidak</button>
     </div>
 
-    <button id="next-btn" onclick="nextQuestion()" style="display:none;">Lanjutkan</button>
-
     <div id="result" style="display:none;">
         <h2>Hasil Diagnosis:</h2>
         <p id="diagnosis-result"></p>
@@ -38,33 +36,40 @@
             "2. Apakah ada bercak pada daun kopi?",
             "3. Apakah tanaman kopi menunjukkan tanda-tanda pembusukan pada akar?",
             "4. Apakah ada serangan hama pada tanaman kopi?",
-            "5. Apakah terdapat bercak putih di daun?"
-            // Tambahkan pertanyaan lain di sini sesuai kebutuhan
+            "5. Apakah terdapat bercak putih di daun?",
+            "6. Apakah ada pengeringan atau pembusukan pada bagian ujung daun?",
+            "7. Apakah tanaman kopi tampak layu, meskipun tanah cukup lembap?",
+            "8. Apakah tanaman kopi menunjukkan pertumbuhan yang terhambat atau daun yang lebih kecil dari biasanya?",
+            "9. Apakah ada perubahan bentuk atau tekstur pada buah kopi yang belum matang?",
+            "10. Apakah tanaman kopi mengalami defoliasi atau rontok daun secara berlebihan?",
+            "11. Apakah batang tanaman kopi menunjukkan tanda-tanda pembusukan atau perubahan warna (seperti kecokelatan atau hitam)?",
+            "12. Apakah ada bintik-bintik berwarna oranye atau kuning di bagian bawah daun?",
+            "13. Apakah tanaman kopi memiliki banyak daun yang tampak cacat atau berlubang?",
+            "14. Apakah ada bau yang tidak biasa, seperti bau busuk, pada tanah atau bagian tanaman yang terinfeksi?",
+            "15. Apakah tanaman kopi tampak tertekan atau mengalami penurunan hasil kopi secara drastis dalam beberapa musim terakhir?"
         ];
 
         // Fungsi untuk menampilkan soal berikutnya
         function displayQuestion() {
             const questionContainer = document.getElementById('question-container');
             questionContainer.innerHTML = questions[currentQuestionIndex];
-            document.getElementById('next-btn').style.display = 'none';  // Sembunyikan tombol 'Lanjutkan'
         }
 
         // Fungsi untuk menangani tombol jawaban
         function selectAnswer(value) {
             answers[currentQuestionIndex] = value;
-            document.getElementById('next-btn').style.display = 'inline-block';  // Tampilkan tombol 'Lanjutkan'
-            const buttons = document.querySelectorAll('.answer-btn');
-            buttons.forEach(button => button.disabled = true);  // Disable semua tombol setelah jawaban dipilih
-        }
 
-        // Fungsi untuk melanjutkan ke soal berikutnya
-        function nextQuestion() {
+            // Melanjutkan ke soal berikutnya
             currentQuestionIndex++;
+
+            // Jika masih ada pertanyaan, tampilkan pertanyaan berikutnya
             if (currentQuestionIndex < questions.length) {
                 displayQuestion();
+                // Reset semua tombol agar dapat dipilih lagi
                 const buttons = document.querySelectorAll('.answer-btn');
-                buttons.forEach(button => button.disabled = false);  // Enable tombol setelah soal baru muncul
+                buttons.forEach(button => button.disabled = false);
             } else {
+                // Jika semua soal sudah dijawab, kirimkan jawaban dan tampilkan hasilnya
                 submitAnswers();
             }
         }
@@ -82,9 +87,8 @@
             .then(result => {
                 document.getElementById('question-container').style.display = 'none';
                 document.getElementById('answer-buttons').style.display = 'none';
-                document.getElementById('next-btn').style.display = 'none';
-
                 document.getElementById('result').style.display = 'block';
+
                 document.getElementById('diagnosis-result').innerText = `Penyakit: ${result.disease}`;
                 document.getElementById('solution-result').innerText = `Solusi: ${result.solution}`;
                 document.getElementById('confidence-result').innerText = `Kepercayaan: ${result.confidence}`;
@@ -100,7 +104,8 @@
         buttons.forEach(button => {
             button.addEventListener('click', () => {
                 const value = button.getAttribute('data-value');
-                selectAnswer(value);
+                button.disabled = true;  // Disable tombol setelah dipilih
+                selectAnswer(value);  // Panggil fungsi untuk memilih jawaban
             });
         });
     </script>
