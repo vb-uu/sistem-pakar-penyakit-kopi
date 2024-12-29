@@ -1,0 +1,18 @@
+{
+  "Bercak Daun": {
+    "gejala": ["1", "2", "5"],
+    "weight": 0.3
+  },
+  "Karat Daun Kopi": {
+    "gejala": ["1", "12"],
+    "weight": 0.4
+  },
+  "Fusarium Wilt": {
+    "gejala": ["3", "7"],
+    "weight": 0.2
+  },
+  "Oidium": {
+    "gejala": ["5", "6"],
+    "weight": 0.1
+  }
+}
