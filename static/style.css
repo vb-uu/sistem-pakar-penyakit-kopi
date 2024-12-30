@@ -1,29 +1,67 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    text-align: center;
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  text-align: center;
 }
 
 h1 {
-    font-size: 2em;
+  font-size: 2em;
 }
 
 button {
-    padding: 10px 20px;
-    margin: 5px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 10px 20px;
+  margin: 5px;
+  background-color: #009879;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 #result {
-    margin-top: 20px;
-    font-size: 1.2em;
+  margin-top: 20px;
+  font-size: 1.2em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 18px;
+  text-align: left;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+th,
+td {
+  padding: 12px 15px;
+}
+
+thead tr {
+  background-color: #009879;
+  color: #ffffff;
+  text-align: left;
+  font-weight: bold;
+}
+
+tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+tbody tr:last-of-type {
+  border-bottom: 2px solid #009879;
+}
+
+tbody tr.active-row {
+  font-weight: bold;
+  color: #009879;
 }

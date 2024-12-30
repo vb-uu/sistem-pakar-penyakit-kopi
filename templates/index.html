@@ -1,113 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistem Pakar Deteksi Penyakit Kopi</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
     <h1>Sistem Pakar Deteksi Penyakit Kopi</h1>
-    <p>Jawablah pertanyaan berikut untuk mendeteksi penyakit pada tanaman kopi Anda.</p>
+    <p>
+      Jawablah pertanyaan berikut untuk mendeteksi penyakit pada tanaman kopi
+      Anda.
+    </p>
 
     <div id="question-container">
-        <!-- Pertanyaan akan ditampilkan di sini -->
-    </div>
-    
-    <div id="answer-buttons" class="btn-container">
-        <button class="answer-btn" data-value="1">Ya</button>
-        <button class="answer-btn" data-value="0.7">Mungkin Iya</button>
-        <button class="answer-btn" data-value="0.4">Mungkin Tidak</button>
-        <button class="answer-btn" data-value="0">Tidak</button>
+      <!-- soal -->
     </div>
 
-    <div id="result" style="display:none;">
-        <h2>Hasil Diagnosis:</h2>
-        <p id="diagnosis-result"></p>
-        <p id="solution-result"></p>
-        <p id="confidence-result"></p>
+    <div id="answer-buttons" class="btn-container">
+      <button class="answer-btn" data-value="1">Ya</button>
+      <button class="answer-btn" data-value="0.7">Mungkin Iya</button>
+      <button class="answer-btn" data-value="0.4">Mungkin Tidak</button>
+      <button class="answer-btn" data-value="0">Tidak</button>
+    </div>
+
+    <div id="result" style="display: none">
+      <h2>Hasil Diagnosis:</h2>
+      <p id="diagnosis-result"></p>
+      <p id="solution-result"></p>
+      <p id="confidence-result"></p>
+      <button id="restart-btn">Diagnosa lagi</button>
+    </div>
+
+    <div id="history-container" style="display: none">
+      <h2>Riwayat Diagnosis:</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Penyakit</th>
+            <th>Solusi</th>
+            <th>Kepercayaan</th>
+          </tr>
+        </thead>
+        <tbody id="history-table">
+          <!-- riwayat -->
+        </tbody>
+      </table>
     </div>
 
     <script>
-        let currentQuestionIndex = 0;
-        let answers = {};
-        const questions = [
-            "1. Apakah daun tanaman kopi menunjukkan perubahan warna, seperti kuning, cokelat, atau kehitaman?",
-            "2. Apakah ada bercak pada daun kopi?",
-            "3. Apakah tanaman kopi menunjukkan tanda-tanda pembusukan pada akar?",
-            "4. Apakah ada serangan hama pada tanaman kopi?",
-            "5. Apakah terdapat bercak putih di daun?",
-            "6. Apakah ada pengeringan atau pembusukan pada bagian ujung daun?",
-            "7. Apakah tanaman kopi tampak layu, meskipun tanah cukup lembap?",
-            "8. Apakah tanaman kopi menunjukkan pertumbuhan yang terhambat atau daun yang lebih kecil dari biasanya?",
-            "9. Apakah ada perubahan bentuk atau tekstur pada buah kopi yang belum matang?",
-            "10. Apakah tanaman kopi mengalami defoliasi atau rontok daun secara berlebihan?",
-            "11. Apakah batang tanaman kopi menunjukkan tanda-tanda pembusukan atau perubahan warna (seperti kecokelatan atau hitam)?",
-            "12. Apakah ada bintik-bintik berwarna oranye atau kuning di bagian bawah daun?",
-            "13. Apakah tanaman kopi memiliki banyak daun yang tampak cacat atau berlubang?",
-            "14. Apakah ada bau yang tidak biasa, seperti bau busuk, pada tanah atau bagian tanaman yang terinfeksi?",
-            "15. Apakah tanaman kopi tampak tertekan atau mengalami penurunan hasil kopi secara drastis dalam beberapa musim terakhir?"
-        ];
+      let currentQuestionIndex = 0;
+      let answers = {};
+      const history = [];
+      const questions = [
+        "1. Apakah daun tanaman kopi menunjukkan perubahan warna, seperti kuning, cokelat, atau kehitaman?",
+        "2. Apakah ada bercak pada daun kopi?",
+        "3. Apakah tanaman kopi menunjukkan tanda-tanda pembusukan pada akar?",
+        "4. Apakah ada serangan hama pada tanaman kopi?",
+        "5. Apakah terdapat bercak putih di daun?",
+        "6. Apakah ada pengeringan atau pembusukan pada bagian ujung daun?",
+        "7. Apakah tanaman kopi tampak layu, meskipun tanah cukup lembap?",
+        "8. Apakah tanaman kopi menunjukkan pertumbuhan yang terhambat atau daun yang lebih kecil dari biasanya?",
+        "9. Apakah ada perubahan bentuk atau tekstur pada buah kopi yang belum matang?",
+        "10. Apakah tanaman kopi mengalami defoliasi atau rontok daun secara berlebihan?",
+        "11. Apakah batang tanaman kopi menunjukkan tanda-tanda pembusukan atau perubahan warna (seperti kecokelatan atau hitam)?",
+        "12. Apakah ada bintik-bintik berwarna oranye atau kuning di bagian bawah daun?",
+        "13. Apakah tanaman kopi memiliki banyak daun yang tampak cacat atau berlubang?",
+        "14. Apakah ada bau yang tidak biasa, seperti bau busuk, pada tanah atau bagian tanaman yang terinfeksi?",
+        "15. Apakah tanaman kopi tampak tertekan atau mengalami penurunan hasil kopi secara drastis dalam beberapa musim terakhir?",
+      ];
 
-        // Fungsi untuk menampilkan soal berikutnya
-        function displayQuestion() {
-            const questionContainer = document.getElementById('question-container');
-            questionContainer.innerHTML = questions[currentQuestionIndex];
+      function displayQuestion() {
+        const questionContainer = document.getElementById("question-container");
+        questionContainer.innerHTML = questions[currentQuestionIndex];
+      }
+
+      function selectAnswer(value) {
+        answers[currentQuestionIndex] = value;
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+          displayQuestion();
+        } else {
+          submitAnswers();
         }
+      }
 
-        // Fungsi untuk menangani tombol jawaban
-        function selectAnswer(value) {
-            answers[currentQuestionIndex] = value;
+      function submitAnswers() {
+        fetch("/diagnose", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(answers),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            document.getElementById("question-container").style.display =
+              "none";
+            document.getElementById("answer-buttons").style.display = "none";
+            document.getElementById("result").style.display = "block";
+            document.getElementById("history-container").style.display =
+              "block";
 
-            // Melanjutkan ke soal berikutnya
-            currentQuestionIndex++;
+            document.getElementById(
+              "diagnosis-result"
+            ).innerText = `Penyakit: ${result.disease}`;
+            document.getElementById(
+              "solution-result"
+            ).innerText = `Solusi: ${result.solution}`;
+            document.getElementById(
+              "confidence-result"
+            ).innerText = `Kepercayaan: ${result.confidence}`;
 
-            // Jika masih ada pertanyaan, tampilkan pertanyaan berikutnya
-            if (currentQuestionIndex < questions.length) {
-                displayQuestion();
-                // Reset semua tombol agar dapat dipilih lagi
-                const buttons = document.querySelectorAll('.answer-btn');
-                buttons.forEach(button => button.disabled = false);
-            } else {
-                // Jika semua soal sudah dijawab, kirimkan jawaban dan tampilkan hasilnya
-                submitAnswers();
-            }
-        }
-
-        // Fungsi untuk mengirim jawaban dan menampilkan hasil diagnosis
-        function submitAnswers() {
-            fetch('/diagnose', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(answers)
-            })
-            .then(response => response.json())
-            .then(result => {
-                document.getElementById('question-container').style.display = 'none';
-                document.getElementById('answer-buttons').style.display = 'none';
-                document.getElementById('result').style.display = 'block';
-
-                document.getElementById('diagnosis-result').innerText = `Penyakit: ${result.disease}`;
-                document.getElementById('solution-result').innerText = `Solusi: ${result.solution}`;
-                document.getElementById('confidence-result').innerText = `Kepercayaan: ${result.confidence}`;
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        // Menampilkan soal pertama saat halaman dimuat
-        window.onload = displayQuestion;
-
-        // Menangani event klik pada tombol jawaban
-        const buttons = document.querySelectorAll('.answer-btn');
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                const value = button.getAttribute('data-value');
-                button.disabled = true;  // Disable tombol setelah dipilih
-                selectAnswer(value);  // Panggil fungsi untuk memilih jawaban
+            history.push({
+              disease: result.disease,
+              solution: result.solution,
+              confidence: result.confidence,
             });
+
+            updateHistoryTable();
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function updateHistoryTable() {
+        const historyTable = document.getElementById("history-table");
+        historyTable.innerHTML = "";
+        history.forEach((entry, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${entry.disease}</td>
+            <td>${entry.solution}</td>
+            <td>${entry.confidence}</td>
+          `;
+          historyTable.appendChild(row);
         });
+      }
+
+      function restartDiagnosis() {
+        currentQuestionIndex = 0;
+        answers = {};
+        document.getElementById("question-container").style.display = "block";
+        document.getElementById("answer-buttons").style.display = "block";
+        document.getElementById("result").style.display = "none";
+        displayQuestion();
+      }
+
+      window.onload = displayQuestion;
+
+      document.querySelectorAll(".answer-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const value = button.getAttribute("data-value");
+          selectAnswer(value);
+        });
+      });
+
+      document
+        .getElementById("restart-btn")
+        .addEventListener("click", restartDiagnosis);
     </script>
-</body>
+  </body>
 </html>
